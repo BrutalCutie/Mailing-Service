@@ -32,3 +32,39 @@ class Message(models.Model):
     class Meta:
         verbose_name = "Сообщение"
         verbose_name_plural = "Сообщения"
+        # permissions = [()]
+
+
+class Mailing(models.Model):
+    # TODO проверить как будет со списком строк, а не списком кортежей строк
+    STATUS_CHOICES = [
+        ("Завершена", "Завершена"),
+        ("Создана", "Создана"),
+        ("Запущена", "Запущена"),
+    ]
+
+    mailing_start_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время первой отправки")
+    mailing_end_at = models.DateTimeField(verbose_name="Дата и время окончания  отправки")
+    status = models.CharField(choices=STATUS_CHOICES, verbose_name='Статус')
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='mailings', verbose_name='Сообщение')
+    receivers = models.ManyToManyField(Receiver, 'receivers', verbose_name='Получатели')
+
+    class Meta:
+        verbose_name = "Рассылка"
+        verbose_name_plural = "Рассылки"
+
+
+class MailingAttempt(models.Model):
+    STATUS_CHOICES = [
+        ("Успешно", "Успешно"),
+        ("Не успешно", "Не успешно"),
+    ]
+
+    attempt_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата и время попытки")
+    status = models.CharField(choices=STATUS_CHOICES, verbose_name='Статус')
+    server_response = models.TextField(verbose_name="Ответ почтового сервера")
+    mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="Рассылка")
+
+    class Meta:
+        verbose_name = "Попытка рассылки"
+        verbose_name_plural = "Попытки рассылки"
