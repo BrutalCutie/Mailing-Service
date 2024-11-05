@@ -8,5 +8,5 @@ app_name = MailingConfig.name
 
 
 urlpatterns = [
-    path('', views.main_page, name='main_page')
+    path('', views.MainPageView.as_view(), name='main_page'),
 ]

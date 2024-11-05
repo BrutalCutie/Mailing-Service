@@ -1,5 +1,7 @@
 from django.shortcuts import render
+from django.views.generic import TemplateView, View
 
-# Create your views here.
-def main_page(request):
-    return render(request, 'mailing/main_page.html')
+
+class MainPageView(TemplateView):
+    template_name = 'mailing/main_page.html'
+

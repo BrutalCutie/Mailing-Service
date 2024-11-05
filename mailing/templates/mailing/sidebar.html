@@ -7,7 +7,7 @@
     <ul class="nav nav-pills flex-column mb-auto text-center">
 
       <li>
-        <a href="#" class="nav-link text-white" aria-current="page">
+        <a href="{% url 'mailing:main_page' %}" class="nav-link text-white" aria-current="page">
           Главная
         </a>
       </li>
@@ -36,32 +36,26 @@
     {% if user.is_authenticated %}
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="/static/imgs/wo-avatar.png"
-                 alt="" width="32" height="32" class="rounded-circle me-2">
-            <strong>Tiken</strong>
+            <img src="/static/imgs/wo-avatar.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>{{ user.username }}</strong>
           </a>
           <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
             <li><a class="dropdown-item" href="#">Профиль</a></li>
-            <li><a class="dropdown-item" href="#">Выйти</a></li>
+            <li>
+                <form action="{% url 'users:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button class="dropdown-item" type="submit">Выйти</button>
+                </form>
+
+
+            </li>
           </ul>
         </div>
     {% else %}
-        <form style="scale: 0.9" method="post">
-            {% csrf_token %}
-
-            <div class="mt-1">
-                <h5>Email</h5>
-                <input type="email" class="form-control" placeholder="name@example.com">
-            </div>
-
-            <div class="mt-1">
-                <h5>Пароль</h5>
-                <input type="password" class="form-control" placeholder="Пароль">
-            </div>
-
-            <button class="btn btn-primary mt-3" type="submit">Вход</button>
-
-        </form>
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'users:login' %}" class="btn btn-primary">Вход</a>
+            <a href="{% url 'users:register' %}" class="btn btn-primary ">Регистрация</a>
+        </div>
 
     {% endif %}
 
