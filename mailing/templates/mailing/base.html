@@ -4,23 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-
+    <link rel="icon" href="/static/imgs/mailing-service-logo.png" sizes="32x32" type="image/png">
     <title>{% block title %}{% endblock %}</title>
 
 </head>
 
-<body class="h-100">
-    {% block content %}
+<body>
 
-    {% endblock %}
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/dark-mode.js"></script>
+    <div class="row">
+        <div class="col-2">
+            {% include 'mailing/sidebar.html' %}
+        </div>
+
+        <div class="col-10">
+
+            <div class="container">
+            {% block content %}
+
+            {% endblock %}
+
+            </div>
+
+        </div>
+    </div>
 
     <footer>
         {% include 'mailing/footer.html' %}
     </footer>
 
 
-
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

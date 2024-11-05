@@ -1,0 +1,68 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="min-height: 900px">
+    <a href="{% url 'mailing:main_page' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+      <img width="40px" src="/static/imgs/mailing-service-logo.png">
+      <span class="fs-4 mx-2">Mailing Service</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto text-center">
+
+      <li>
+        <a href="#" class="nav-link text-white" aria-current="page">
+          Главная
+        </a>
+      </li>
+
+      <li>
+        <a href="#" class="nav-link text-white">
+          Рассылки
+        </a>
+      </li>
+
+      <li>
+        <a href="#" class="nav-link text-white">
+          Получатели
+        </a>
+      </li>
+
+      <li>
+        <a href="#" class="nav-link text-white">
+          Контакты
+        </a>
+      </li>
+
+    </ul>
+    <hr>
+
+    {% if user.is_authenticated %}
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="/static/imgs/wo-avatar.png"
+                 alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>Tiken</strong>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+            <li><a class="dropdown-item" href="#">Профиль</a></li>
+            <li><a class="dropdown-item" href="#">Выйти</a></li>
+          </ul>
+        </div>
+    {% else %}
+        <form style="scale: 0.9" method="post">
+            {% csrf_token %}
+
+            <div class="mt-1">
+                <h5>Email</h5>
+                <input type="email" class="form-control" placeholder="name@example.com">
+            </div>
+
+            <div class="mt-1">
+                <h5>Пароль</h5>
+                <input type="password" class="form-control" placeholder="Пароль">
+            </div>
+
+            <button class="btn btn-primary mt-3" type="submit">Вход</button>
+
+        </form>
+
+    {% endif %}
+
+</div>
