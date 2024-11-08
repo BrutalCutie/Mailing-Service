@@ -1,11 +1,17 @@
 from django.db import models
+from users.models import MailingUser
 
 
 class Receiver(models.Model):
-    """Поля: email, full_name, commentary"""
+    """Поля: email, full_name, commentary, owner"""
     email = models.EmailField(unique=True, null=False, blank=False, verbose_name="почта получателя")
     full_name = models.CharField(max_length=100, null=False, blank=False, verbose_name="Ф.И.О.")
     commentary = models.TextField(verbose_name="Комментарий о получателе рассылки")
+    owner = models.ForeignKey(MailingUser,
+                              on_delete=models.CASCADE,
+                              related_name='receivers',
+                              verbose_name='Владелец модели получателя',
+                              null=True, blank=True)
 
     def __str__(self):
         return f"{self.full_name} | {self.email}"
@@ -17,9 +23,14 @@ class Receiver(models.Model):
 
 
 class Message(models.Model):
-    """Поля: subject, message_text"""
+    """Поля: subject, message_text, owner"""
     subject = models.CharField(max_length=100, blank=False, null=False, verbose_name="тема сообщения")
     message_text = models.TextField(verbose_name="текст сообщения")
+    owner = models.ForeignKey(MailingUser,
+                              on_delete=models.CASCADE,
+                              related_name='messages',
+                              verbose_name='Владелец модели сообщения',
+                              null=True, blank=True)
 
     def __str__(self):
         max_length = 20
@@ -37,15 +48,20 @@ class Message(models.Model):
 
 
 class Mailing(models.Model):
-    """Поля: mailing_start_at, mailing_end_at, status, message, receivers"""
+    """Поля: mailing_start_at, mailing_end_at, status, message, receivers, owner"""
     # TODO проверить как будет со списком строк, а не списком кортежей строк
     STATUS_CHOICES = [("Завершена", "Завершена"), ("Создана", "Создана"), ("Запущена", "Запущена")]
 
-    mailing_start_at = models.DateTimeField(auto_now_add=True, verbose_name="дата и время первой отправки")
-    mailing_end_at = models.DateTimeField(verbose_name="дата и время окончания  отправки")
-    status = models.CharField(choices=STATUS_CHOICES, verbose_name='статус')
+    mailing_start_at = models.DateTimeField(verbose_name="дата и время первой отправки", null=True, blank=True)
+    mailing_end_at = models.DateTimeField(verbose_name="дата и время окончания  отправки", null=True, blank=True)
+    status = models.CharField(choices=STATUS_CHOICES, verbose_name='статус', default="Создана")
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='mailings', verbose_name='сообщение')
     receivers = models.ManyToManyField(Receiver, 'receivers', verbose_name='получатели')
+    owner = models.ForeignKey(MailingUser,
+                              on_delete=models.CASCADE,
+                              related_name='mailings',
+                              verbose_name='Владелец модели рассылки',
+                              null=True, blank=True)
 
     class Meta:
         verbose_name = "Рассылка"

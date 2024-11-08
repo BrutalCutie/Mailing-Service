@@ -1,45 +1,55 @@
 <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="min-height: 900px">
-    <a href="{% url 'mailing:main_page' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-      <img width="40px" src="/static/imgs/mailing-service-logo.png">
-      <span class="fs-4 mx-2">Mailing Service</span>
+    <a href="{% url 'mailing:main_page' %}"
+       class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+        <img width="40px" src="/static/imgs/mailing-service-logo.png">
+        <span class="fs-4 mx-2">Mailing Service</span>
     </a>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto text-center">
 
-      <li>
-        <a href="{% url 'mailing:main_page' %}" class="nav-link text-white" aria-current="page">
-          Главная
-        </a>
-      </li>
+        <li>
+            <a href="{% url 'mailing:main_page' %}" class="nav-link text-white" aria-current="page">
+                Главная
+            </a>
+        </li>
 
-      <li>
-        <a href="#" class="nav-link text-white">
-          Рассылки
-        </a>
-      </li>
+        <li>
+            <a href="#" class="nav-link text-white">
+                Сообщения
+            </a>
+        </li>
 
-      <li>
-        <a href="#" class="nav-link text-white">
-          Получатели
-        </a>
-      </li>
+        <li>
+            <a href="#" class="nav-link text-white">
+                Получатели
+            </a>
+        </li>
 
-      <li>
-        <a href="#" class="nav-link text-white">
-          Контакты
-        </a>
-      </li>
+        {% if user.is_authenticated %}
+        <li>
+            <a href="#" class="nav-link text-white">
+                Моя статистика
+            </a>
+        </li>
+        {% endif %}
+        <hr>
+        <li>
+            <a href="#" class="nav-link text-white">
+                Контакты
+            </a>
+        </li>
 
     </ul>
     <hr>
 
     {% if user.is_authenticated %}
-        <div class="dropdown">
-          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+           data-bs-toggle="dropdown" aria-expanded="false">
             <img src="/static/imgs/wo-avatar.png" alt="" width="32" height="32" class="rounded-circle me-2">
             <strong>{{ user.username }}</strong>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
             <li><a class="dropdown-item" href="#">Профиль</a></li>
             <li>
                 <form action="{% url 'users:logout' %}" method="post">
@@ -49,13 +59,13 @@
 
 
             </li>
-          </ul>
-        </div>
+        </ul>
+    </div>
     {% else %}
-        <div class="d-flex justify-content-between">
-            <a href="{% url 'users:login' %}" class="btn btn-primary">Вход</a>
-            <a href="{% url 'users:register' %}" class="btn btn-primary ">Регистрация</a>
-        </div>
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{% url 'users:login' %}" class="btn btn-primary">Вход</a>
+        <a href="{% url 'users:register' %}" class="btn btn-primary ">Регистрация</a>
+    </div>
 
     {% endif %}
 
