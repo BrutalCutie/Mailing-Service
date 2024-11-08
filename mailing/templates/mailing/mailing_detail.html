@@ -5,9 +5,8 @@
 {% block content %}
 
 <div class="mt-5">
-    <h2>{{mailing.message.subject}}</h2>
-    <h5>Владелец: {{mailing.owner.username}}</h5>
-    <div class="card col-6 mt-1">
+    <h2 class="text-center col-6">{{mailing.message.subject}}</h2>
+    <div class="card col-6 mt-5">
         <div class="card-header text-center">
             <h5>Получатели</h5>
         </div>
@@ -22,7 +21,7 @@
         </div>
     </div>
 
-
+    <a href="{% url 'mailing:main_page' %}" class="btn btn-primary mt-5">Назад</a>
 </div>
 
 {% endblock %}

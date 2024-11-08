@@ -20,5 +20,11 @@ urlpatterns = [
     path('receiver_update/<int:pk>/', views.ReceiverUpdateView.as_view(), name='receiver_update'),
     path('receiver_delete/<int:pk>/', views.ReceiverDeleteView.as_view(), name='receiver_delete'),
 
+    # path('message_list/', views.MessageListView.as_view(), name='message_list'),
+    # path('message_new/', views.MessageCreateView.as_view(), name='message_new'),
+    # path('message_detail/<int:pk>/', views.MessageDetailView.as_view(), name='message_detail'),
+    # path('message_update/<int:pk>/', views.MessageUpdateView.as_view(), name='message_update'),
+    # path('message_delete/<int:pk>/', views.MessageDeleteView.as_view(), name='message_delete'),
+
 
 ]

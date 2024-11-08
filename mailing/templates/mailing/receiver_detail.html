@@ -12,6 +12,11 @@
     <div class="mt-5">
         <p>Почта: {{receiver.email}}</p>
         <p>Комментарий: {{receiver.commentary}}</p>
+        <hr>
+        <div class="btn-group col-4">
+            <a href="{% url 'mailing:receiver_update' receiver.pk %}" class="btn btn-warning col-6">Редактировать</a>
+            <a href="{% url 'mailing:receiver_delete' receiver.pk %}" class="btn btn-danger col-6">Удалить</a>
+        </div>
         <a href="{{back_page}}" class="btn btn-primary">Назад</a>
 
     </div>

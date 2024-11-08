@@ -2,7 +2,7 @@ import json
 from pprint import pprint
 
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
@@ -16,13 +16,16 @@ class MailingListView(ListView):
     model = Mailing
     template_name = 'mailing/main_page.html'
 
-    context_object_name = 'mailings'
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    def get_queryset(self):
         user = self.request.user
-        queryset = user.mailings.all()
 
-        return queryset
+        context['created'] = user.mailings.filter(status="Создана")
+        context['started'] = user.mailings.filter(status="Запущена")
+        context['finished'] = user.mailings.filter(status="Завершена")
+
+        return context
 
 
 class MailingCreateView(CreateView):
@@ -50,16 +53,24 @@ class MailingDetailView(DetailView):
         mailing_pk = self.kwargs['pk']
 
         context['receivers_list'] = MailingService.get_sreceivers(mailing_pk)
+        context['back_page'] = self.request.environ['HTTP_REFERER']
 
         return context
 
 
 class MailingUpdateView(UpdateView):
-    pass
+    model = Mailing
+    form_class = forms.MailingForm
+    template_name = 'mailing/mailing_new.html'
+
+    def get_success_url(self):
+        return reverse("mailing:main_page", kwargs={"pk": self.object.pk})
 
 
 class MailingDeleteView(DeleteView):
-    pass
+    model = Mailing
+    template_name = 'mailing/mailing_confirm_delete.html'
+    success_url = reverse_lazy("mailing:main_page")
 
 
 class ReceiverListView(ListView):
@@ -76,7 +87,18 @@ class ReceiverListView(ListView):
 
 
 class ReceiverCreateView(CreateView):
-    pass
+    model = Receiver
+    form_class = forms.ReceiverForm
+    template_name = 'mailing/receiver_new.html'
+    success_url = reverse_lazy("mailing:receiver_list")
+
+    def form_valid(self, form):
+        receiver = form.save()
+        user = self.request.user
+        receiver.owner = user
+        user.save()
+
+        return super().form_valid(form)
 
 
 class ReceiverDetailView(DetailView):
@@ -93,12 +115,15 @@ class ReceiverDetailView(DetailView):
 
 
 class ReceiverUpdateView(UpdateView):
-    pass
+    model = Receiver
+    form_class = forms.ReceiverForm
+    template_name = 'mailing/receiver_new.html'
+
+    def get_success_url(self):
+        return reverse("mailing:receiver_detail", kwargs={"pk": self.object.pk})
 
 
 class ReceiverDeleteView(DeleteView):
-    pass
-
-
-
-
+    model = Receiver
+    template_name = 'mailing/receiver_confirm_delete.html'
+    success_url = reverse_lazy("mailing:receiver_list")
