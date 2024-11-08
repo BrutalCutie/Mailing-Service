@@ -13,9 +13,9 @@
         </div>
         <div class="card-text p-3">
             {% for i in mailing.receivers.all %}
-            <a class="btn btn-outline-info m-1" href="#">{{i.full_name}}</a>
-            <a class="btn btn-outline-info m-1" href="#">{{i.full_name}}</a>
-            <a class="btn btn-outline-info m-1" href="#">{{i.full_name}}</a>
+            <a class="btn btn-outline-info m-1" href="{% url 'mailing:receiver_detail' i.pk %}">{{i.full_name}}</a>
+            <a class="btn btn-outline-info m-1" href="{% url 'mailing:receiver_detail' i.pk %}">{{i.full_name}}</a>
+            <a class="btn btn-outline-info m-1" href="{% url 'mailing:receiver_detail' i.pk %}">{{i.full_name}}</a>
 
             {% endfor %}
             <a class="btn btn-info" href="#">Добавить ➕</a>

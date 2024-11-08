@@ -1,0 +1,21 @@
+{% extends 'mailing/base.html' %}
+
+{% block title %}Инфо о "{{receiver.full_name}}"{% endblock %}
+
+{% block content %}
+
+<div class="mt-5">
+    <div>
+        <h1>Информация о "{{receiver.full_name}}".</h1>
+    </div>
+
+    <div class="mt-5">
+        <p>Почта: {{receiver.email}}</p>
+        <p>Комментарий: {{receiver.commentary}}</p>
+        <a href="{{back_page}}" class="btn btn-primary">Назад</a>
+
+    </div>
+
+</div>
+
+{% endblock %}
