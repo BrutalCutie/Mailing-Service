@@ -2,10 +2,10 @@
 
 
     {% block title %}
-        {% if "message_update" in request.path %}
-            Редактировании сообщения
+        {% if "mailing_update" in request.path %}
+            Редактировании рассылки
         {% else %}
-            Новое сообщения
+            Новая рассылка
         {% endif %}
     {% endblock %}
 
@@ -15,12 +15,12 @@
     <form action="" method="post">
         {% csrf_token %}
         {{form.as_p}}
-        {% if "message_update" in request.path %}
+        {% if "mailing_update" in request.path %}
             <button class="btn btn-success" type="submit">Сохранить</button>
         {% else %}
             <button class="btn btn-success" type="submit">Добавить</button>
         {% endif %}
-        <a href="{% url 'mailing:message_list' %}" class="btn btn-primary">Назад</a>
+        <a href="{% url 'mailing:main_page' %}" class="btn btn-primary">Назад</a>
 
     </form>
 

@@ -5,6 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.contrib.auth.models import AnonymousUser
 
 from mailing import forms
 from mailing.models import Mailing, Receiver, Message
@@ -21,9 +22,10 @@ class MailingListView(ListView):
 
         user = self.request.user
 
-        context['created'] = user.mailings.filter(status="Создана")
-        context['started'] = user.mailings.filter(status="Запущена")
-        context['finished'] = user.mailings.filter(status="Завершена")
+        if user.is_authenticated:
+            context['created'] = user.mailings.filter(status="Создана")
+            context['started'] = user.mailings.filter(status="Запущена")
+            context['finished'] = user.mailings.filter(status="Завершена")
 
         return context
 
@@ -64,12 +66,12 @@ class MailingUpdateView(UpdateView):
     template_name = 'mailing/mailing_new.html'
 
     def get_success_url(self):
-        return reverse("mailing:main_page", kwargs={"pk": self.object.pk})
+        return reverse("mailing:mailing_detail", kwargs={"pk": self.object.pk})
 
 
 class MailingDeleteView(DeleteView):
     model = Mailing
-    template_name = 'mailing/mailing_confirm_delete.html'
+    template_name = 'mailing/mailing_delete_confirm.html'
     success_url = reverse_lazy("mailing:main_page")
 
 
@@ -127,3 +129,59 @@ class ReceiverDeleteView(DeleteView):
     model = Receiver
     template_name = 'mailing/receiver_confirm_delete.html'
     success_url = reverse_lazy("mailing:receiver_list")
+
+
+class MessageListView(ListView):
+    model = Message
+    template_name = 'mailing/message_list.html'
+
+    context_object_name = 'messages'
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = user.messages.all()
+
+        return queryset
+
+
+class MessageCreateView(CreateView):
+    model = Message
+    form_class = forms.MessageForm
+    template_name = 'mailing/message_new.html'
+    success_url = reverse_lazy("mailing:message_new")
+
+    def form_valid(self, form):
+        receiver = form.save()
+        user = self.request.user
+        receiver.owner = user
+        user.save()
+
+        return super().form_valid(form)
+
+
+class MessageDetailView(DetailView):
+    model = Message
+    template_name = 'mailing/message_detail.html'
+    context_object_name = 'message'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['back_page'] = self.request.environ['HTTP_REFERER']
+
+        return context
+
+
+class MessageUpdateView(UpdateView):
+    model = Message
+    form_class = forms.MessageForm
+    template_name = 'mailing/message_new.html'
+
+    def get_success_url(self):
+        return reverse("mailing:message_detail", kwargs={"pk": self.object.pk})
+
+
+class MessageDeleteView(DeleteView):
+    model = Message
+    template_name = 'mailing/message_confirm_delete.html'
+    success_url = reverse_lazy("mailing:message_list")
