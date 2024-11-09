@@ -12,3 +12,9 @@ class ReceiverForm(ModelForm):
     class Meta:
         model = Receiver
         fields = ["email", "full_name", "commentary"]
+
+
+class MessageForm(ModelForm):
+    class Meta:
+        model = Message
+        fields = ["subject", "message_text"]

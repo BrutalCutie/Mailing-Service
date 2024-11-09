@@ -12,9 +12,9 @@
                 Главная
             </a>
         </li>
-
+        {% if user.is_authenticated %}
         <li>
-            <a href="#" class="nav-link text-white">
+            <a href="{% url 'mailing:message_list' %}" class="nav-link text-white">
                 Сообщения
             </a>
         </li>
@@ -25,7 +25,6 @@
             </a>
         </li>
 
-        {% if user.is_authenticated %}
         <li>
             <a href="#" class="nav-link text-white">
                 Моя статистика

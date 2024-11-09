@@ -1,6 +1,7 @@
 import json
 from pprint import pprint
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView
@@ -13,7 +14,7 @@ from users.models import MailingUser
 from mailing.services import MailingService
 
 
-class MailingListView(ListView):
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
     template_name = 'mailing/main_page.html'
 
@@ -30,7 +31,7 @@ class MailingListView(ListView):
         return context
 
 
-class MailingCreateView(CreateView):
+class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = forms.MailingForm
     template_name = 'mailing/mailing_new.html'
@@ -45,7 +46,7 @@ class MailingCreateView(CreateView):
         return super().form_valid(form)
 
 
-class MailingDetailView(DetailView):
+class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = 'mailing/mailing_detail.html'
     context_object_name = 'mailing'
@@ -55,12 +56,11 @@ class MailingDetailView(DetailView):
         mailing_pk = self.kwargs['pk']
 
         context['receivers_list'] = MailingService.get_sreceivers(mailing_pk)
-        context['back_page'] = self.request.environ['HTTP_REFERER']
 
         return context
 
 
-class MailingUpdateView(UpdateView):
+class MailingUpdateView(LoginRequiredMixin, UpdateView):
     model = Mailing
     form_class = forms.MailingForm
     template_name = 'mailing/mailing_new.html'
@@ -69,13 +69,13 @@ class MailingUpdateView(UpdateView):
         return reverse("mailing:mailing_detail", kwargs={"pk": self.object.pk})
 
 
-class MailingDeleteView(DeleteView):
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
     template_name = 'mailing/mailing_delete_confirm.html'
     success_url = reverse_lazy("mailing:main_page")
 
 
-class ReceiverListView(ListView):
+class ReceiverListView(LoginRequiredMixin, ListView):
     model = Receiver
     template_name = 'mailing/receiver_list.html'
 
@@ -88,7 +88,7 @@ class ReceiverListView(ListView):
         return queryset
 
 
-class ReceiverCreateView(CreateView):
+class ReceiverCreateView(LoginRequiredMixin, CreateView):
     model = Receiver
     form_class = forms.ReceiverForm
     template_name = 'mailing/receiver_new.html'
@@ -103,7 +103,7 @@ class ReceiverCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ReceiverDetailView(DetailView):
+class ReceiverDetailView(LoginRequiredMixin, DetailView):
     model = Receiver
     template_name = 'mailing/receiver_detail.html'
     context_object_name = 'receiver'
@@ -111,12 +111,10 @@ class ReceiverDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['back_page'] = self.request.environ['HTTP_REFERER']
-
         return context
 
 
-class ReceiverUpdateView(UpdateView):
+class ReceiverUpdateView(LoginRequiredMixin, UpdateView):
     model = Receiver
     form_class = forms.ReceiverForm
     template_name = 'mailing/receiver_new.html'
@@ -125,13 +123,13 @@ class ReceiverUpdateView(UpdateView):
         return reverse("mailing:receiver_detail", kwargs={"pk": self.object.pk})
 
 
-class ReceiverDeleteView(DeleteView):
+class ReceiverDeleteView(LoginRequiredMixin, DeleteView):
     model = Receiver
     template_name = 'mailing/receiver_confirm_delete.html'
     success_url = reverse_lazy("mailing:receiver_list")
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     model = Message
     template_name = 'mailing/message_list.html'
 
@@ -144,7 +142,7 @@ class MessageListView(ListView):
         return queryset
 
 
-class MessageCreateView(CreateView):
+class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = forms.MessageForm
     template_name = 'mailing/message_new.html'
@@ -159,20 +157,13 @@ class MessageCreateView(CreateView):
         return super().form_valid(form)
 
 
-class MessageDetailView(DetailView):
+class MessageDetailView(LoginRequiredMixin, DetailView):
     model = Message
     template_name = 'mailing/message_detail.html'
     context_object_name = 'message'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
 
-        context['back_page'] = self.request.environ['HTTP_REFERER']
-
-        return context
-
-
-class MessageUpdateView(UpdateView):
+class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
     form_class = forms.MessageForm
     template_name = 'mailing/message_new.html'
@@ -181,7 +172,7 @@ class MessageUpdateView(UpdateView):
         return reverse("mailing:message_detail", kwargs={"pk": self.object.pk})
 
 
-class MessageDeleteView(DeleteView):
+class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     template_name = 'mailing/message_confirm_delete.html'
     success_url = reverse_lazy("mailing:message_list")
