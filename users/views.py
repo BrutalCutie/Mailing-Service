@@ -1,10 +1,15 @@
-from django.contrib.auth.views import LogoutView
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
+from pprint import pprint
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseForbidden
+from django.urls import reverse_lazy, reverse
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic import DetailView, TemplateView
 from django.core.mail import send_mail
-from .forms import MailingUserCreationForm
+from .forms import MailingUserCreationForm, MailingUserChangeForm
 
 from config.settings import EMAIL_HOST_USER
+from .models import MailingUser
 
 
 class RegisterView(CreateView):
@@ -30,3 +35,24 @@ class RegisterView(CreateView):
     #               message=message,
     #               from_email=EMAIL_HOST_USER,
     #               recipient_list=recipient_list)
+
+
+class MailingUserDetailView(LoginRequiredMixin, DetailView):
+    template_name = 'users/profile_detail.html'
+    model = MailingUser
+    context_object_name = 'user'
+
+
+class MailingProfileTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/profile_detail.html'
+
+
+class MailingUserUpdateView(LoginRequiredMixin, UpdateView):
+    template_name = 'users/register.html'
+    model = MailingUser
+    form_class = MailingUserChangeForm
+
+    def get_success_url(self):
+        redirect_pk = self.request.resolver_match.kwargs.get('pk')
+
+        return reverse("users:profile_detail", kwargs={"pk": redirect_pk})

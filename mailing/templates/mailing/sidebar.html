@@ -45,21 +45,20 @@
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
            data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="/static/imgs/wo-avatar.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            <img src="{% if user.avatar.name %}/media/{{user.avatar.name}}{% else %}/static/imgs/wo-avatar.png{% endif %}" alt="" width="32" height="32" class="rounded-circle me-2">
             <strong>{{ user.username }}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-            <li><a class="dropdown-item" href="#">Профиль</a></li>
+            <li><a class="dropdown-item" href="{% url 'users:profile_detail' user.pk %}">Профиль</a></li>
             <li>
                 <form action="{% url 'users:logout' %}" method="post">
                     {% csrf_token %}
                     <button class="dropdown-item" type="submit">Выйти</button>
                 </form>
-
-
             </li>
         </ul>
     </div>
+
     {% else %}
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
         <a href="{% url 'users:login' %}" class="btn btn-primary">Вход</a>

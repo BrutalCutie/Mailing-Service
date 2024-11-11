@@ -1,3 +1,5 @@
+from django.views.generic import TemplateView
+
 from mailing import views
 
 from mailing.apps import MailingConfig
@@ -25,6 +27,5 @@ urlpatterns = [
     path('message_detail/<int:pk>/', views.MessageDetailView.as_view(), name='message_detail'),
     path('message_update/<int:pk>/', views.MessageUpdateView.as_view(), name='message_update'),
     path('message_delete/<int:pk>/', views.MessageDeleteView.as_view(), name='message_delete'),
-
 
 ]

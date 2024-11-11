@@ -1,12 +1,8 @@
-import json
-from pprint import pprint
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.contrib.auth.models import AnonymousUser
 
 from mailing import forms
 from mailing.models import Mailing, Receiver, Message
@@ -14,7 +10,7 @@ from users.models import MailingUser
 from mailing.services import MailingService
 
 
-class MailingListView(LoginRequiredMixin, ListView):
+class MailingListView(ListView):
     model = Mailing
     template_name = 'mailing/main_page.html'
 
