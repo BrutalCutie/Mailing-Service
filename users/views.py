@@ -2,6 +2,7 @@ from pprint import pprint
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseForbidden
+from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import DetailView, TemplateView
@@ -42,15 +43,35 @@ class MailingUserDetailView(LoginRequiredMixin, DetailView):
     model = MailingUser
     context_object_name = 'user'
 
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
 
-class MailingProfileTemplateView(LoginRequiredMixin, TemplateView):
-    template_name = 'users/profile_detail.html'
+        can_view = [
+            request.user.pk == query_item.pk
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
 
 
 class MailingUserUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'users/register.html'
     model = MailingUser
     form_class = MailingUserChangeForm
+
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+
+        can_view = [
+            request.user.pk == query_item.pk
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
 
     def get_success_url(self):
         redirect_pk = self.request.resolver_match.kwargs.get('pk')

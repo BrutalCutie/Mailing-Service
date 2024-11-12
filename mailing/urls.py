@@ -28,4 +28,9 @@ urlpatterns = [
     path('message_update/<int:pk>/', views.MessageUpdateView.as_view(), name='message_update'),
     path('message_delete/<int:pk>/', views.MessageDeleteView.as_view(), name='message_delete'),
 
+    path('attempt_list/', views.AttemptListView.as_view(), name='attempt_list'),
+    path('attempt_detail/<int:pk>/', views.AttemptDetailView.as_view(), name='attempt_detail'),
+
+    path('access_denied/', views.AcessDenied.as_view(), name='access_denied')
+
 ]

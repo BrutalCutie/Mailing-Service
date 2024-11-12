@@ -5,6 +5,7 @@
 {% block content %}
 
 <div class="mt-5">
+
     <h2 class="text-center col-6">{{mailing.message.subject}}</h2>
     <div class="card col-6 mt-5">
         <div class="card-header text-center">
@@ -31,6 +32,7 @@
 
     </div>
     <hr class="col-6">
+    <h2 class="mb-5">Статус: {{mailing.status}}</h2>
 
     <div class="btn-group col-4">
         <a href="{% url 'mailing:mailing_update' mailing.pk %}" class="btn btn-warning col-6">Редактировать</a>

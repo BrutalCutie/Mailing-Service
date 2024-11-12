@@ -1,16 +1,13 @@
-from mailing.models import Mailing
-
-
 class MailingService:
 
     @staticmethod
-    def get_sreceivers(mailing_pk):
+    def get_created_mailing(user):
+        return user.mailings.filter(status="Создана")
 
-        mailing = Mailing.objects.get(pk=mailing_pk)
-        receivers = mailing.receivers.all()
-        names = [x.full_name for x in receivers]
+    @staticmethod
+    def get_started_mailing(user):
+        return user.mailings.filter(status="Запущена")
 
-        return ', '.join(names)
-
-
-
+    @staticmethod
+    def get_finished_mailing(user):
+        return user.mailings.filter(status="Завершена")

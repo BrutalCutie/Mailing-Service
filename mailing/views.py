@@ -1,12 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 
 from mailing import forms
-from mailing.models import Mailing, Receiver, Message
-from users.models import MailingUser
+from mailing.models import Mailing, Receiver, Message, MailingAttempt
 from mailing.services import MailingService
 
 
@@ -20,9 +19,9 @@ class MailingListView(ListView):
         user = self.request.user
 
         if user.is_authenticated:
-            context['created'] = user.mailings.filter(status="Создана")
-            context['started'] = user.mailings.filter(status="Запущена")
-            context['finished'] = user.mailings.filter(status="Завершена")
+            context['created'] = MailingService.get_created_mailing(user)
+            context['started'] = MailingService.get_started_mailing(user)
+            context['finished'] = MailingService.get_finished_mailing(user)
 
         return context
 
@@ -47,13 +46,17 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
     template_name = 'mailing/mailing_detail.html'
     context_object_name = 'mailing'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        mailing_pk = self.kwargs['pk']
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
 
-        context['receivers_list'] = MailingService.get_sreceivers(mailing_pk)
+        can_view = [
+            request.user == query_item.owner
+        ]
 
-        return context
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
 
 
 class MailingUpdateView(LoginRequiredMixin, UpdateView):
@@ -64,11 +67,35 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse("mailing:mailing_detail", kwargs={"pk": self.object.pk})
 
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+
+        can_view = [
+            request.user == query_item.owner
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
+
 
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
     template_name = 'mailing/mailing_delete_confirm.html'
     success_url = reverse_lazy("mailing:main_page")
+
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+
+        can_view = [
+            request.user == query_item.owner
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
 
 
 class ReceiverListView(LoginRequiredMixin, ListView):
@@ -104,10 +131,17 @@ class ReceiverDetailView(LoginRequiredMixin, DetailView):
     template_name = 'mailing/receiver_detail.html'
     context_object_name = 'receiver'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
 
-        return context
+        can_view = [
+            request.user == query_item.owner
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
 
 
 class ReceiverUpdateView(LoginRequiredMixin, UpdateView):
@@ -158,6 +192,18 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
     template_name = 'mailing/message_detail.html'
     context_object_name = 'message'
 
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+
+        can_view = [
+            request.user == query_item.owner
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
+
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
@@ -167,8 +213,62 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse("mailing:message_detail", kwargs={"pk": self.object.pk})
 
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+
+        can_view = [
+            request.user == query_item.owner
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
+
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     template_name = 'mailing/message_confirm_delete.html'
     success_url = reverse_lazy("mailing:message_list")
+
+    def get(self, request, *args, **kwargs):
+        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+
+        can_view = [
+            request.user == query_item.owner
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
+
+
+class AcessDenied(TemplateView):
+    template_name = 'mailing/access_denied.html'
+
+    def get(self, request, *args, **kwargs):
+        print(f"{request.user} Пытался получить доступ к запрещённому контенту")
+        return super().get(request, *args, **kwargs)
+
+
+class AttemptListView(ListView):
+    model = MailingAttempt
+    template_name = 'mailing/attempt_list.html'
+    context_object_name = 'attempts'
+
+    def get_queryset(self):
+        user = self.request.user
+        user_mailings = user.mailings.filter(status="Создана")
+
+        attempts = []
+
+        for x in user_mailings:
+            attempts.extend(x.mailingattempt_set.all())
+        return attempts
+
+
+class AttemptDetailView(DetailView):
+    model = MailingAttempt
+    template_name = 'mailing/attempt_detail.html'
+    context_object_name = 'attempt'

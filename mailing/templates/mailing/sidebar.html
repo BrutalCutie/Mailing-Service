@@ -27,14 +27,19 @@
 
         <li>
             <a href="#" class="nav-link text-white">
+                Попытки рассылок
+            </a>
+        </li>
+
+        <li>
+            <a href="#" class="nav-link text-white">
                 Моя статистика
             </a>
         </li>
         {% endif %}
-        <hr>
         <li>
-            <a href="#" class="nav-link text-white">
-                Контакты
+            <a href="{% url 'mailing:attempt_list' %}" class="nav-link text-white">
+                Попытки рассылки
             </a>
         </li>
 
