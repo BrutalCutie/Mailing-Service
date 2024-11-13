@@ -63,6 +63,9 @@ class Mailing(models.Model):
                               verbose_name='Владелец модели рассылки',
                               null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.pk} | {self.owner} | {self.status}"
+
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
@@ -77,6 +80,9 @@ class MailingAttempt(models.Model):
     status = models.CharField(choices=STATUS_CHOICES, verbose_name='статус')
     server_response = models.TextField(verbose_name="ответ почтового сервера")
     mailing = models.ForeignKey(Mailing, on_delete=models.CASCADE, verbose_name="рассылка")
+
+    def __str__(self):
+        return f"{self.pk} | {self.status}"
 
     class Meta:
         verbose_name = "Попытка рассылки"

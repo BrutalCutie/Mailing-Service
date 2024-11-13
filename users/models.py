@@ -14,3 +14,9 @@ class MailingUser(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}. mail: {self.email}"
+
+    class Meta:
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
+        permissions = [("can_manage_users", "Управление пользователем")]
+

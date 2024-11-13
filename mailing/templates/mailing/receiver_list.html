@@ -19,7 +19,7 @@
         </ul>
             {% for receiver in receivers %}
             <div class="row">
-                <a href="{% url 'mailing:receiver_detail' receiver.pk %}" class="nav-link mx-2">
+                <a href="{% url 'mailing:receiver_detail' receiver.pk %}" class="text-decoration-none">
                 <ul class="list-group list-group-horizontal">
                     <li class="list-group-item col-3">{{receiver.full_name}}</li>
                     <li class="list-group-item col-4">{{receiver.email}}</li>

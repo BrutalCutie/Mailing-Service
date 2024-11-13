@@ -7,6 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from mailing import forms
 from mailing.models import Mailing, Receiver, Message, MailingAttempt
 from mailing.services import MailingService
+from users.models import MailingUser
 
 
 class MailingListView(ListView):
@@ -272,3 +273,46 @@ class AttemptDetailView(DetailView):
     model = MailingAttempt
     template_name = 'mailing/attempt_detail.html'
     context_object_name = 'attempt'
+
+
+class UsersListView(ListView):
+    model = MailingUser
+    template_name = 'mailing/users_list.html'
+    context_object_name = 'musers'
+
+    def get(self, request, *args, **kwargs):
+
+        can_view = [
+            request.user.is_staff,
+            request.user.has_perm("users.can_manage_users")
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        current_user = self.request.user.pk
+        queryset = MailingUser.objects.exclude(pk=current_user).exclude(is_staff=True)
+        return queryset
+
+
+class UsersDetailView(DetailView):
+    model = MailingUser
+    template_name = 'mailing/users_detail.html'
+    context_object_name = 'muser'
+
+
+class UsersActiveSwitch(DetailView):
+    model = MailingUser
+    template_name = 'mailing/users_detail.html'
+    context_object_name = 'muser'
+
+    def get(self, request, *args, **kwargs):
+        muser_id = self.kwargs['pk']
+        muser = MailingUser.objects.get(pk=muser_id)
+        muser.is_active = muser.is_active is False
+        muser.save()
+
+        return redirect("mailing:users_detail", pk=muser_id)

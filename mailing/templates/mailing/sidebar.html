@@ -13,35 +13,37 @@
             </a>
         </li>
         {% if user.is_authenticated %}
-        <li>
-            <a href="{% url 'mailing:message_list' %}" class="nav-link text-white">
-                Сообщения
-            </a>
-        </li>
+            <li>
+                <a href="{% url 'mailing:message_list' %}" class="nav-link text-white">
+                    Сообщения
+                </a>
+            </li>
 
-        <li>
-            <a href="{% url 'mailing:receiver_list' %}" class="nav-link text-white">
-                Получатели
-            </a>
-        </li>
+            <li>
+                <a href="{% url 'mailing:receiver_list' %}" class="nav-link text-white">
+                    Получатели
+                </a>
+            </li>
 
-        <li>
-            <a href="#" class="nav-link text-white">
-                Попытки рассылок
-            </a>
-        </li>
+            <li>
+                <a href="{% url 'mailing:attempt_list' %}" class="nav-link text-white">
+                    Попытки рассылок
+                </a>
+            </li>
 
-        <li>
-            <a href="#" class="nav-link text-white">
-                Моя статистика
-            </a>
-        </li>
+            <li>
+                <a href="#" class="nav-link text-white">
+                    Моя статистика
+                </a>
+            </li>
+            {% if perms.users.can_manage_users %}
+                <li>
+                    <a href="{% url 'mailing:users_list' %}" class="nav-link text-white">
+                        Список пользователей
+                    </a>
+                </li>
+            {% endif %}
         {% endif %}
-        <li>
-            <a href="{% url 'mailing:attempt_list' %}" class="nav-link text-white">
-                Попытки рассылки
-            </a>
-        </li>
 
     </ul>
     <hr>
@@ -52,7 +54,9 @@
            data-bs-toggle="dropdown" aria-expanded="false">
             <img src="{% if user.avatar.name %}/media/{{user.avatar.name}}{% else %}/static/imgs/wo-avatar.png{% endif %}" alt="" width="32" height="32" class="rounded-circle me-2">
             <strong>{{ user.username }}</strong>
+
         </a>
+        {% if perms.users.can_manage_users %}Менеджер{% endif %}
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
             <li><a class="dropdown-item" href="{% url 'users:profile_detail' user.pk %}">Профиль</a></li>
             <li>

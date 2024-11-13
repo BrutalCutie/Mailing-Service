@@ -14,6 +14,5 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
 
     path('profile/<int:pk>/', views.MailingUserDetailView.as_view(), name='profile_detail'),
-    path('profile/update/<int:pk>/', views.MailingUserUpdateView.as_view(), name='profile_update')
-
+    path('profile/update/<int:pk>/', views.MailingUserUpdateView.as_view(), name='profile_update'),
 ]
