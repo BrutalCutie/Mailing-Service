@@ -1,5 +1,3 @@
-from django.views.generic import TemplateView
-
 from mailing import views
 
 from mailing.apps import MailingConfig
@@ -15,6 +13,10 @@ urlpatterns = [
     path('mailing_detail/<int:pk>/', views.MailingDetailView.as_view(), name='mailing_detail'),
     path('mailing_update/<int:pk>/', views.MailingUpdateView.as_view(), name='mailing_update'),
     path('mailing_delete/<int:pk>/', views.MailingDeleteView.as_view(), name='mailing_delete'),
+
+    path('mailing_push/<int:pk>/', views.MailingPush.as_view(), name='mailing_push'),
+    path('mailing_cancel/<int:pk>/', views.MailingCancel.as_view(), name='mailing_cancel'),
+    path('mailing_reopen/<int:pk>/', views.MailingReOpen.as_view(), name='mailing_reopen'),
 
     path('receiver_list/', views.ReceiverListView.as_view(), name='receiver_list'),
     path('receiver_new/', views.ReceiverCreateView.as_view(), name='receiver_new'),

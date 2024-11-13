@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -18,11 +18,12 @@ class MailingListView(ListView):
         context = super().get_context_data(**kwargs)
 
         user = self.request.user
+        can_view_all = user.has_perm("mailing.can_manage_mailing")
 
         if user.is_authenticated:
-            context['created'] = MailingService.get_created_mailing(user)
-            context['started'] = MailingService.get_started_mailing(user)
-            context['finished'] = MailingService.get_finished_mailing(user)
+            context['created'] = MailingService.get_created_mailing(user, show_all=can_view_all)
+            context['started'] = MailingService.get_started_mailing(user, show_all=can_view_all)
+            context['finished'] = MailingService.get_finished_mailing(user, show_all=can_view_all)
 
         return context
 
@@ -51,7 +52,8 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
         query_item = self.model.objects.get(pk=self.kwargs['pk'])
 
         can_view = [
-            request.user == query_item.owner
+            request.user == query_item.owner,
+            request.user.has_perm("mailing.can_manage_mailing")
         ]
 
         if not any(can_view):
@@ -72,7 +74,7 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
         query_item = self.model.objects.get(pk=self.kwargs['pk'])
 
         can_view = [
-            request.user == query_item.owner
+            request.user == query_item.owner,
         ]
 
         if not any(can_view):
@@ -106,7 +108,12 @@ class ReceiverListView(LoginRequiredMixin, ListView):
     context_object_name = 'receivers'
 
     def get_queryset(self):
+
         user = self.request.user
+
+        if user.has_perm('mailing.can_manage_clients'):
+            return Receiver.objects.all()
+
         queryset = user.receivers.all()
 
         return queryset
@@ -135,8 +142,12 @@ class ReceiverDetailView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         query_item = self.model.objects.get(pk=self.kwargs['pk'])
 
+        user = request.user
+
         can_view = [
-            request.user == query_item.owner
+            user == query_item.owner,
+            user.has_perm('mailing.can_manage_clients'),
+
         ]
 
         if not any(can_view):
@@ -168,6 +179,8 @@ class MessageListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         user = self.request.user
+        if user.has_perm("mailing.can_manage_message"):
+            return Message.objects.all()
         queryset = user.messages.all()
 
         return queryset
@@ -195,9 +208,12 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
         query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        user = request.user
 
         can_view = [
-            request.user == query_item.owner
+            user == query_item.owner,
+            user.has_perm("mailing.can_manage_message")
+
         ]
 
         if not any(can_view):
@@ -249,7 +265,7 @@ class AcessDenied(TemplateView):
     template_name = 'mailing/access_denied.html'
 
     def get(self, request, *args, **kwargs):
-        print(f"{request.user} Пытался получить доступ к запрещённому контенту")
+        print(f"{request.user} Пытался получить доступ к запрещённому контенту.")
         return super().get(request, *args, **kwargs)
 
 
@@ -303,16 +319,104 @@ class UsersDetailView(DetailView):
     template_name = 'mailing/users_detail.html'
     context_object_name = 'muser'
 
+    def get(self, request, *args, **kwargs):
+
+        can_view = [
+            request.user.is_staff,
+            request.user.has_perm("mailing.can_manage_users")
+        ]
+
+        if not any(can_view):
+            return redirect('mailing:access_denied')
+
+        return super().get(request, *args, **kwargs)
+
 
 class UsersActiveSwitch(DetailView):
     model = MailingUser
     template_name = 'mailing/users_detail.html'
-    context_object_name = 'muser'
 
     def get(self, request, *args, **kwargs):
         muser_id = self.kwargs['pk']
         muser = MailingUser.objects.get(pk=muser_id)
+
+        can_use = [
+            request.user.has_perm("mailing.can_manage_mailing"),
+        ]
+
+        if not any(can_use):
+            return redirect('mailing:access_denied')
+
         muser.is_active = muser.is_active is False
         muser.save()
 
-        return redirect("mailing:users_detail", pk=muser_id)
+        return redirect("mailing:mailing_detail", pk=muser_id)
+
+
+class MailingPush(DetailView):
+    model = Mailing
+    template_name = 'mailing/mailing_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        mailing_id = self.kwargs['pk']
+        mailing = Mailing.objects.get(pk=mailing_id)
+        user = request.user
+
+        can_use = [
+            request.user.has_perm("mailing.can_manage_mailing"),
+            user == mailing.owner,
+        ]
+
+        if not any(can_use):
+            return redirect('mailing:access_denied')
+
+        mailing.status = "Запущена"
+        mailing.save()
+
+        return redirect("mailing:mailing_detail", pk=mailing_id)
+
+
+class MailingCancel(DetailView):
+    model = Mailing
+    template_name = 'mailing/mailing_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        mailing_id = self.kwargs['pk']
+        mailing = Mailing.objects.get(pk=mailing_id)
+        user = request.user
+
+        can_use = [
+            request.user.has_perm("mailing.can_manage_mailing"),
+            user == mailing.owner,
+        ]
+
+        if not any(can_use):
+            return redirect('mailing:access_denied')
+
+        mailing.status = "Завершена"
+        mailing.save()
+
+        return redirect("mailing:mailing_detail", pk=mailing_id)
+
+
+class MailingReOpen(DetailView):
+    model = Mailing
+    template_name = 'mailing/mailing_detail.html'
+
+    def get(self, request, *args, **kwargs):
+        mailing_id = self.kwargs['pk']
+        mailing = Mailing.objects.get(pk=mailing_id)
+        user = request.user
+
+        can_use = [
+            request.user.has_perm("mailing.can_manage_mailing"),
+            user == mailing.owner,
+        ]
+
+        if not any(can_use):
+            return redirect('mailing:access_denied')
+
+        mailing.status = "Создана"
+        mailing.save()
+
+        return redirect("mailing:mailing_detail", pk=mailing_id)
