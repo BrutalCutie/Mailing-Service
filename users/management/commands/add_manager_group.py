@@ -13,7 +13,8 @@ class Command(BaseCommand):
         can_manage_message = Permission.objects.get(codename='can_manage_message')
         can_manage_mailing = Permission.objects.get(codename='can_manage_mailing')
 
-        manager_group = Group(name='manager')
+        manager_group = Group.objects.create(name='manager')
+
         manager_group.permissions.add(
             can_manage_users, can_manage_clients, can_manage_message, can_manage_mailing
         )

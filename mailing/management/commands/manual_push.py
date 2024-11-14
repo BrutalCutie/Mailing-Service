@@ -30,6 +30,3 @@ class Command(BaseCommand):
 
         MailingService.mailing_push(int(user_input))
         return print("Рассылка запущена")
-
-
-
