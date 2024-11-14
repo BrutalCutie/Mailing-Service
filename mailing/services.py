@@ -37,10 +37,14 @@ class MailingService:
         for rec_email in receivers:
 
             try:
-                result = send_mail(subject=subject,
-                                   message=text,
-                                   from_email=EMAIL_HOST_USER,
-                                   recipient_list=[rec_email,])
+                result = send_mail(
+                    subject=subject,
+                    message=text,
+                    from_email=EMAIL_HOST_USER,
+                    recipient_list=[
+                        rec_email,
+                    ],
+                )
 
             except Exception as err:
                 result = err
@@ -48,12 +52,11 @@ class MailingService:
             attempt = MailingAttempt(
                 status="Успешно" if result == 1 else "Не успешно",
                 server_response=result,
-                mailing=mailing
-
+                mailing=mailing,
             )
             attempt.save()
 
-        mailing.status = 'Завершена'
+        mailing.status = "Завершена"
         mailing.save()
 
 
@@ -72,4 +75,3 @@ class MailingAttemptsService:
         attempts.sort(key=lambda x: x.attempt_at)
 
         return attempts
-

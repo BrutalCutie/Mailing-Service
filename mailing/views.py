@@ -15,7 +15,7 @@ from users.models import MailingUser
 
 class MailingListView(ListView):
     model = Mailing
-    template_name = 'mailing/main_page.html'
+    template_name = "mailing/main_page.html"
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -24,9 +24,15 @@ class MailingListView(ListView):
         can_view_all = user.has_perm("mailing.can_manage_mailing")
 
         if user.is_authenticated:
-            context['created'] = MailingService.get_created_mailing(user, show_all=can_view_all)
-            context['started'] = MailingService.get_started_mailing(user, show_all=can_view_all)
-            context['finished'] = MailingService.get_finished_mailing(user, show_all=can_view_all)
+            context["created"] = MailingService.get_created_mailing(
+                user, show_all=can_view_all
+            )
+            context["started"] = MailingService.get_started_mailing(
+                user, show_all=can_view_all
+            )
+            context["finished"] = MailingService.get_finished_mailing(
+                user, show_all=can_view_all
+            )
 
         return context
 
@@ -34,7 +40,7 @@ class MailingListView(ListView):
 class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = forms.MailingForm
-    template_name = 'mailing/mailing_new.html'
+    template_name = "mailing/mailing_new.html"
     success_url = reverse_lazy("mailing:main_page")
 
     def form_valid(self, form):
@@ -48,19 +54,19 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
 
 class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
-    template_name = 'mailing/mailing_detail.html'
-    context_object_name = 'mailing'
+    template_name = "mailing/mailing_detail.html"
+    context_object_name = "mailing"
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
 
         can_view = [
             request.user == query_item.owner,
-            request.user.has_perm("mailing.can_manage_mailing")
+            request.user.has_perm("mailing.can_manage_mailing"),
         ]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
@@ -68,53 +74,51 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
 class MailingUpdateView(LoginRequiredMixin, UpdateView):
     model = Mailing
     form_class = forms.MailingForm
-    template_name = 'mailing/mailing_new.html'
+    template_name = "mailing/mailing_new.html"
 
     def get_success_url(self):
         return reverse("mailing:mailing_detail", kwargs={"pk": self.object.pk})
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
 
         can_view = [
             request.user == query_item.owner,
         ]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
 
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
-    template_name = 'mailing/mailing_delete_confirm.html'
+    template_name = "mailing/mailing_delete_confirm.html"
     success_url = reverse_lazy("mailing:main_page")
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
 
-        can_view = [
-            request.user == query_item.owner
-        ]
+        can_view = [request.user == query_item.owner]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
 
 class ReceiverListView(LoginRequiredMixin, ListView):
     model = Receiver
-    template_name = 'mailing/receiver_list.html'
+    template_name = "mailing/receiver_list.html"
 
-    context_object_name = 'receivers'
+    context_object_name = "receivers"
 
     def get_queryset(self):
 
         user = self.request.user
 
-        if user.has_perm('mailing.can_manage_clients'):
+        if user.has_perm("mailing.can_manage_clients"):
             return Receiver.objects.all()
 
         queryset = user.receivers.all()
@@ -125,7 +129,7 @@ class ReceiverListView(LoginRequiredMixin, ListView):
 class ReceiverCreateView(LoginRequiredMixin, CreateView):
     model = Receiver
     form_class = forms.ReceiverForm
-    template_name = 'mailing/receiver_new.html'
+    template_name = "mailing/receiver_new.html"
     success_url = reverse_lazy("mailing:receiver_list")
 
     def form_valid(self, form):
@@ -139,22 +143,21 @@ class ReceiverCreateView(LoginRequiredMixin, CreateView):
 
 class ReceiverDetailView(LoginRequiredMixin, DetailView):
     model = Receiver
-    template_name = 'mailing/receiver_detail.html'
-    context_object_name = 'receiver'
+    template_name = "mailing/receiver_detail.html"
+    context_object_name = "receiver"
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
 
         user = request.user
 
         can_view = [
             user == query_item.owner,
-            user.has_perm('mailing.can_manage_clients'),
-
+            user.has_perm("mailing.can_manage_clients"),
         ]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
@@ -162,7 +165,7 @@ class ReceiverDetailView(LoginRequiredMixin, DetailView):
 class ReceiverUpdateView(LoginRequiredMixin, UpdateView):
     model = Receiver
     form_class = forms.ReceiverForm
-    template_name = 'mailing/receiver_new.html'
+    template_name = "mailing/receiver_new.html"
 
     def get_success_url(self):
         return reverse("mailing:receiver_detail", kwargs={"pk": self.object.pk})
@@ -170,15 +173,15 @@ class ReceiverUpdateView(LoginRequiredMixin, UpdateView):
 
 class ReceiverDeleteView(LoginRequiredMixin, DeleteView):
     model = Receiver
-    template_name = 'mailing/receiver_confirm_delete.html'
+    template_name = "mailing/receiver_confirm_delete.html"
     success_url = reverse_lazy("mailing:receiver_list")
 
 
 class MessageListView(LoginRequiredMixin, ListView):
     model = Message
-    template_name = 'mailing/message_list.html'
+    template_name = "mailing/message_list.html"
 
-    context_object_name = 'messages'
+    context_object_name = "messages"
 
     def get_queryset(self):
         user = self.request.user
@@ -192,7 +195,7 @@ class MessageListView(LoginRequiredMixin, ListView):
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = forms.MessageForm
-    template_name = 'mailing/message_new.html'
+    template_name = "mailing/message_new.html"
     success_url = reverse_lazy("mailing:message_new")
 
     def form_valid(self, form):
@@ -206,21 +209,20 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
 
 class MessageDetailView(LoginRequiredMixin, DetailView):
     model = Message
-    template_name = 'mailing/message_detail.html'
-    context_object_name = 'message'
+    template_name = "mailing/message_detail.html"
+    context_object_name = "message"
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
         user = request.user
 
         can_view = [
             user == query_item.owner,
-            user.has_perm("mailing.can_manage_message")
-
+            user.has_perm("mailing.can_manage_message"),
         ]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
@@ -228,44 +230,40 @@ class MessageDetailView(LoginRequiredMixin, DetailView):
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
     form_class = forms.MessageForm
-    template_name = 'mailing/message_new.html'
+    template_name = "mailing/message_new.html"
 
     def get_success_url(self):
         return reverse("mailing:message_detail", kwargs={"pk": self.object.pk})
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
 
-        can_view = [
-            request.user == query_item.owner
-        ]
+        can_view = [request.user == query_item.owner]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
-    template_name = 'mailing/message_confirm_delete.html'
+    template_name = "mailing/message_confirm_delete.html"
     success_url = reverse_lazy("mailing:message_list")
 
     def get(self, request, *args, **kwargs):
-        query_item = self.model.objects.get(pk=self.kwargs['pk'])
+        query_item = self.model.objects.get(pk=self.kwargs["pk"])
 
-        can_view = [
-            request.user == query_item.owner
-        ]
+        can_view = [request.user == query_item.owner]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
 
 class AcessDenied(TemplateView):
-    template_name = 'mailing/access_denied.html'
+    template_name = "mailing/access_denied.html"
 
     def get(self, request, *args, **kwargs):
         print(f"{request.user} Пытался получить доступ к запрещённому контенту.")
@@ -274,38 +272,38 @@ class AcessDenied(TemplateView):
 
 class AttemptListView(ListView):
     model = MailingAttempt
-    template_name = 'mailing/attempt_list.html'
-    context_object_name = 'attempts'
+    template_name = "mailing/attempt_list.html"
+    context_object_name = "attempts"
 
     def get_queryset(self):
-        queryset = cache.get('attempt_queryset')
+        queryset = cache.get("attempt_queryset")
         if not queryset:
             queryset = MailingAttemptsService.get_my_attempts(self.request.user.pk)
-            cache.set('attempt_queryset', queryset, 60*5)
+            cache.set("attempt_queryset", queryset, 60 * 5)
 
         return queryset
 
 
 class AttemptDetailView(DetailView):
     model = MailingAttempt
-    template_name = 'mailing/attempt_detail.html'
-    context_object_name = 'attempt'
+    template_name = "mailing/attempt_detail.html"
+    context_object_name = "attempt"
 
 
 class UsersListView(ListView):
     model = MailingUser
-    template_name = 'mailing/users_list.html'
-    context_object_name = 'musers'
+    template_name = "mailing/users_list.html"
+    context_object_name = "musers"
 
     def get(self, request, *args, **kwargs):
 
         can_view = [
             request.user.is_staff,
-            request.user.has_perm("users.can_manage_users")
+            request.user.has_perm("users.can_manage_users"),
         ]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
@@ -317,28 +315,28 @@ class UsersListView(ListView):
 
 class UsersDetailView(DetailView):
     model = MailingUser
-    template_name = 'mailing/users_detail.html'
-    context_object_name = 'muser'
+    template_name = "mailing/users_detail.html"
+    context_object_name = "muser"
 
     def get(self, request, *args, **kwargs):
 
         can_view = [
             request.user.is_staff,
-            request.user.has_perm("mailing.can_manage_users")
+            request.user.has_perm("mailing.can_manage_users"),
         ]
 
         if not any(can_view):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         return super().get(request, *args, **kwargs)
 
 
 class UsersActiveSwitch(DetailView):
     model = MailingUser
-    template_name = 'mailing/users_detail.html'
+    template_name = "mailing/users_detail.html"
 
     def get(self, request, *args, **kwargs):
-        muser_id = self.kwargs['pk']
+        muser_id = self.kwargs["pk"]
         muser = MailingUser.objects.get(pk=muser_id)
 
         can_use = [
@@ -346,7 +344,7 @@ class UsersActiveSwitch(DetailView):
         ]
 
         if not any(can_use):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         muser.is_active = muser.is_active is False
         muser.save()
@@ -356,10 +354,10 @@ class UsersActiveSwitch(DetailView):
 
 class MailingPush(DetailView):
     model = Mailing
-    template_name = 'mailing/mailing_detail.html'
+    template_name = "mailing/mailing_detail.html"
 
     def get(self, request, *args, **kwargs):
-        mailing_id = self.kwargs['pk']
+        mailing_id = self.kwargs["pk"]
         mailing = Mailing.objects.get(pk=mailing_id)
         user = request.user
 
@@ -369,7 +367,7 @@ class MailingPush(DetailView):
         ]
 
         if not any(can_use):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         mailing.status = "Запущена"
         mailing.save()
@@ -380,10 +378,10 @@ class MailingPush(DetailView):
 
 class MailingCancel(DetailView):
     model = Mailing
-    template_name = 'mailing/mailing_detail.html'
+    template_name = "mailing/mailing_detail.html"
 
     def get(self, request, *args, **kwargs):
-        mailing_id = self.kwargs['pk']
+        mailing_id = self.kwargs["pk"]
         mailing = Mailing.objects.get(pk=mailing_id)
         user = request.user
 
@@ -393,7 +391,7 @@ class MailingCancel(DetailView):
         ]
 
         if not any(can_use):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         mailing.status = "Завершена"
         mailing.save()
@@ -403,10 +401,10 @@ class MailingCancel(DetailView):
 
 class MailingReOpen(DetailView):
     model = Mailing
-    template_name = 'mailing/mailing_detail.html'
+    template_name = "mailing/mailing_detail.html"
 
     def get(self, request, *args, **kwargs):
-        mailing_id = self.kwargs['pk']
+        mailing_id = self.kwargs["pk"]
         mailing = Mailing.objects.get(pk=mailing_id)
         user = request.user
 
@@ -416,7 +414,7 @@ class MailingReOpen(DetailView):
         ]
 
         if not any(can_use):
-            return redirect('mailing:access_denied')
+            return redirect("mailing:access_denied")
 
         mailing.status = "Создана"
         mailing.save()
@@ -424,7 +422,7 @@ class MailingReOpen(DetailView):
         return redirect("mailing:mailing_detail", pk=mailing_id)
 
 
-@method_decorator(cache_page(60*5), name='dispatch')
+@method_decorator(cache_page(60 * 5), name="dispatch")
 class StatisticTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "mailing/stats.html"
 
@@ -433,9 +431,9 @@ class StatisticTemplateView(LoginRequiredMixin, TemplateView):
 
         attempts = MailingAttemptsService.get_my_attempts(self.request.user.pk)
 
-        context['mailings'] = self.request.user.mailings.all()
-        context['attempts_success'] = sum([x.status == "Успешно" for x in attempts])
-        context['attempts_failed'] = sum([x.status != "Успешно" for x in attempts])
-        context['attempts_total'] = len(attempts)
+        context["mailings"] = self.request.user.mailings.all()
+        context["attempts_success"] = sum([x.status == "Успешно" for x in attempts])
+        context["attempts_failed"] = sum([x.status != "Успешно" for x in attempts])
+        context["attempts_total"] = len(attempts)
 
         return context

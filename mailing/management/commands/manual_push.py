@@ -14,7 +14,7 @@ class Command(BaseCommand):
         mailings = Mailing.objects.all()
         posible_ints = []
 
-        print("Введите ID рассылки, чтобы перевести её в статус \"Запущена\"\n")
+        print('Введите ID рассылки, чтобы перевести её в статус "Запущена"\n')
         for mailing in mailings:
             posible_ints.append(mailing.pk)
 
