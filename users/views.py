@@ -96,37 +96,11 @@ def email_confirm(request, token):
     return redirect("users:login")
 
 
-class MailingUserPassRestoration(PasswordResetView):
-    model = MailingUser
-    form_class = MailingUserPassRestore
-    # template_name = 'users/pass_restore.html'
-    success_url = reverse_lazy("users:login")
-
-    def form_valid(self, form):
-        email = form.save()
-        print(email)
-        title = "Ваш новый пароль от сервиса"
-        new_pass = secrets.token_hex(8)
-
-        user = MailingUser.objects.get(email=email)
-        user.set_password(new_pass)
-        user.save()
-        
-        message = f"Для входа используте пароль: {new_pass}"
-
-        send_mail(subject=title,
-                  message=message,
-                  from_email=EMAIL_HOST_USER,
-                  recipient_list=[email,])
-        
-        return super().form_valid(form) 
-
-
 class ResetPasswordView(PasswordResetView):
     template_name = 'users/pass_restore.html'
     email_template_name = 'users/password_reset_email.html'
     subject_template_name = 'users/password_reset_subject'
-    success_url = reverse_lazy('users:login')
+    success_url = reverse_lazy('users:after_pass_restore')
 
 
 class MyPasswordResetConfirmView(PasswordResetConfirmView):

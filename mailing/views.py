@@ -1,12 +1,15 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.core.cache import cache
 
 from mailing import forms
 from mailing.models import Mailing, Receiver, Message, MailingAttempt
-from mailing.services import MailingService
+from mailing.services import MailingService, MailingAttemptsService
 from users.models import MailingUser
 
 
@@ -275,14 +278,12 @@ class AttemptListView(ListView):
     context_object_name = 'attempts'
 
     def get_queryset(self):
-        user = self.request.user
-        user_mailings = user.mailings.filter(status="Создана")
+        queryset = cache.get('attempt_queryset')
+        if not queryset:
+            queryset = MailingAttemptsService.get_my_attempts(self.request.user.pk)
+            cache.set('attempt_queryset', queryset, 60*5)
 
-        attempts = []
-
-        for x in user_mailings:
-            attempts.extend(x.mailingattempt_set.all())
-        return attempts
+        return queryset
 
 
 class AttemptDetailView(DetailView):
@@ -372,6 +373,7 @@ class MailingPush(DetailView):
 
         mailing.status = "Запущена"
         mailing.save()
+        MailingService.mailing_push(mailing.pk)
 
         return redirect("mailing:mailing_detail", pk=mailing_id)
 
@@ -420,3 +422,20 @@ class MailingReOpen(DetailView):
         mailing.save()
 
         return redirect("mailing:mailing_detail", pk=mailing_id)
+
+
+@method_decorator(cache_page(60*5), name='dispatch')
+class StatisticTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "mailing/stats.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        attempts = MailingAttemptsService.get_my_attempts(self.request.user.pk)
+
+        context['mailings'] = self.request.user.mailings.all()
+        context['attempts_success'] = sum([x.status == "Успешно" for x in attempts])
+        context['attempts_failed'] = sum([x.status != "Успешно" for x in attempts])
+        context['attempts_total'] = len(attempts)
+
+        return context

@@ -35,12 +35,12 @@
     <h2 class="mb-5">Статус: {{mailing.status}}
         {% if mailing.status == "Создана" and not perms.mailing.can_manage_mailing %}
             <a href="{% url 'mailing:mailing_push' mailing.pk %}" class="btn btn-outline-success btn-sm">Пуск</a>
-
-        {% elif mailing.status == "Запущена" and not perms.mailing.can_manage_mailing %}
+        {% endif %}
+        {% if mailing.status != "Завершена" and not perms.mailing.can_manage_mailing %}
             <a href="{% url 'mailing:mailing_cancel' mailing.pk %}" class="btn btn-outline-danger btn-sm">Отмена рассылки</a>
 
         {% elif mailing.status == "Завершена" and not perms.mailing.can_manage_mailing %}
-            <a href="{% url 'mailing:mailing_reopen' mailing.pk %}" class="btn btn-outline-danger btn-sm">Заного</a>
+            <a href="{% url 'mailing:mailing_reopen' mailing.pk %}" class="btn btn-outline-danger btn-sm">Заново</a>
 
         {% endif %}
 
