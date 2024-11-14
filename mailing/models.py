@@ -3,7 +3,6 @@ from users.models import MailingUser
 
 
 class Receiver(models.Model):
-    """Поля: email, full_name, commentary, owner"""
     email = models.EmailField(unique=True, null=False, blank=False, verbose_name="почта получателя")
     full_name = models.CharField(max_length=100, null=False, blank=False, verbose_name="Ф.И.О.")
     commentary = models.TextField(verbose_name="Комментарий о получателе рассылки")
@@ -23,7 +22,6 @@ class Receiver(models.Model):
 
 
 class Message(models.Model):
-    """Поля: subject, message_text, owner"""
     subject = models.CharField(max_length=100, blank=False, null=False, verbose_name="тема сообщения")
     message_text = models.TextField(verbose_name="текст сообщения")
     owner = models.ForeignKey(MailingUser,
@@ -48,8 +46,6 @@ class Message(models.Model):
 
 
 class Mailing(models.Model):
-    """Поля: mailing_start_at, mailing_end_at, status, message, receivers, owner"""
-    # TODO проверить как будет со списком строк, а не списком кортежей строк
     STATUS_CHOICES = [("Завершена", "Завершена"), ("Создана", "Создана"), ("Запущена", "Запущена")]
 
     mailing_start_at = models.DateTimeField(verbose_name="дата и время первой отправки", null=True, blank=True)
@@ -73,7 +69,6 @@ class Mailing(models.Model):
 
 
 class MailingAttempt(models.Model):
-    """Поля: attempt_at, status, server_response, mailing"""
     STATUS_CHOICES = [("Успешно", "Успешно"), ("Не успешно", "Не успешно")]
 
     attempt_at = models.DateTimeField(auto_now_add=True, verbose_name="дата и время попытки")
