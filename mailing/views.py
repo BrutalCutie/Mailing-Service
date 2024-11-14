@@ -196,7 +196,7 @@ class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = forms.MessageForm
     template_name = "mailing/message_new.html"
-    success_url = reverse_lazy("mailing:message_new")
+    success_url = reverse_lazy("mailing:message_list")
 
     def form_valid(self, form):
         receiver = form.save()
