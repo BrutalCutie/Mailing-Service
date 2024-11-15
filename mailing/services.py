@@ -75,3 +75,9 @@ class MailingAttemptsService:
         attempts.sort(key=lambda x: x.attempt_at)
 
         return attempts
+
+    @staticmethod
+    def is_attempt_owner(atempt_pk, user):
+        user_attempt = MailingAttempt.objects.get(pk=atempt_pk)
+
+        return user_attempt.mailing.owner == user

@@ -173,7 +173,7 @@ class ReceiverUpdateView(LoginRequiredMixin, UpdateView):
 
 class ReceiverDeleteView(LoginRequiredMixin, DeleteView):
     model = Receiver
-    template_name = "mailing/receiver_confirm_delete.html"
+    template_name = "mailing/receiver_delete_confirm.html"
     success_url = reverse_lazy("mailing:receiver_list")
 
 
@@ -248,7 +248,7 @@ class MessageUpdateView(LoginRequiredMixin, UpdateView):
 
 class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
-    template_name = "mailing/message_confirm_delete.html"
+    template_name = "mailing/message_delete_confirm.html"
     success_url = reverse_lazy("mailing:message_list")
 
     def get(self, request, *args, **kwargs):
@@ -270,7 +270,7 @@ class AcessDenied(TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-class AttemptListView(ListView):
+class AttemptListView(LoginRequiredMixin, ListView):
     model = MailingAttempt
     template_name = "mailing/attempt_list.html"
     context_object_name = "attempts"
@@ -289,8 +289,21 @@ class AttemptDetailView(DetailView):
     template_name = "mailing/attempt_detail.html"
     context_object_name = "attempt"
 
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        attempt_pk = self.kwargs['pk']
 
-class UsersListView(ListView):
+        can_view = [
+            MailingAttemptsService.is_attempt_owner(atempt_pk=attempt_pk, user=user)
+        ]
+
+        if not any(can_view):
+            return redirect("mailing:access_denied")
+
+        return super().get(request, *args, **kwargs)
+
+
+class UsersListView(LoginRequiredMixin, ListView):
     model = MailingUser
     template_name = "mailing/users_list.html"
     context_object_name = "musers"
@@ -313,7 +326,7 @@ class UsersListView(ListView):
         return queryset
 
 
-class UsersDetailView(DetailView):
+class UsersDetailView(LoginRequiredMixin, DetailView):
     model = MailingUser
     template_name = "mailing/users_detail.html"
     context_object_name = "muser"
@@ -331,7 +344,7 @@ class UsersDetailView(DetailView):
         return super().get(request, *args, **kwargs)
 
 
-class UsersActiveSwitch(DetailView):
+class UsersActiveSwitch(LoginRequiredMixin, DetailView):
     model = MailingUser
     template_name = "mailing/users_detail.html"
 
@@ -352,7 +365,7 @@ class UsersActiveSwitch(DetailView):
         return redirect("mailing:mailing_detail", pk=muser_id)
 
 
-class MailingPush(DetailView):
+class MailingPush(LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = "mailing/mailing_detail.html"
 
@@ -376,7 +389,7 @@ class MailingPush(DetailView):
         return redirect("mailing:mailing_detail", pk=mailing_id)
 
 
-class MailingCancel(DetailView):
+class MailingCancel(LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = "mailing/mailing_detail.html"
 
@@ -399,7 +412,7 @@ class MailingCancel(DetailView):
         return redirect("mailing:mailing_detail", pk=mailing_id)
 
 
-class MailingReOpen(DetailView):
+class MailingReOpen(LoginRequiredMixin, DetailView):
     model = Mailing
     template_name = "mailing/mailing_detail.html"
 
