@@ -2,10 +2,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.core.cache import cache
 
 from mailing import forms
 from mailing.models import Mailing, Receiver, Message, MailingAttempt
@@ -276,11 +274,7 @@ class AttemptListView(LoginRequiredMixin, ListView):
     context_object_name = "attempts"
 
     def get_queryset(self):
-        queryset = cache.get("attempt_queryset")
-        if not queryset:
-            queryset = MailingAttemptsService.get_my_attempts(self.request.user.pk)
-            cache.set("attempt_queryset", queryset, 60 * 5)
-
+        queryset = MailingAttemptsService.get_my_attempts(self.request.user.pk)
         return queryset
 
 
@@ -435,7 +429,6 @@ class MailingReOpen(LoginRequiredMixin, DetailView):
         return redirect("mailing:mailing_detail", pk=mailing_id)
 
 
-@method_decorator(cache_page(60 * 5), name="dispatch")
 class StatisticTemplateView(LoginRequiredMixin, TemplateView):
     template_name = "mailing/stats.html"
 
