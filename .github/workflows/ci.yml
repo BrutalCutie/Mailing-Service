@@ -41,7 +41,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Tests
-        run: pytnon manage.py test
+        run: python manage.py test
 
   deploy:
     needs: test
