@@ -44,6 +44,7 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
+
     - name: Copy project files to server
       run: |
         rsync -avz --exclude '__pycache__' . ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}:${{ secrets.WORK_DIR }}
