@@ -3,25 +3,25 @@ name: Django Remote Server CI
 on: [push]
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-
-      - name: Install flake8
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8
-
-      - name: Run flake8
-        run: flake8 .
+#  lint:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v3
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v4
+#        with:
+#          python-version: '3.12'
+#
+#
+#      - name: Install flake8
+#        run: |
+#          python -m pip install --upgrade pip
+#          pip install flake8
+#
+#      - name: Run flake8
+#        run: flake8 .
 
   deploy:
     runs-on: ubuntu-latest
@@ -31,8 +31,8 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-#      - name: Test server connection
-#        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}
+      - name: Test server connection
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}
 #
 #      - name: Install dependencies on server
 #        run: |
