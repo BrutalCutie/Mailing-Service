@@ -32,7 +32,8 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Test server connection
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}
+
 #
 #      - name: Install dependencies on server
 #        run: |
