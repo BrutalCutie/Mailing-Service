@@ -47,6 +47,7 @@ jobs:
 
     - name: Copy project files to server
       run: |
+        ssh-copy-id ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}
         rsync -avz --exclude '__pycache__' . ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}:${{ secrets.WORK_DIR }}
 
     - name: Install dependencies on server
