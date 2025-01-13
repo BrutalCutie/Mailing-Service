@@ -44,10 +44,13 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_KEY }}
 
+    - name: Add server to known_hosts
+      run: |
+          ssh-keyscan -H ${{ secrets.SSH_IP_ADDRESS }} >> ~/.ssh/known_hosts
 
     - name: Copy project files to server
       run: |
-        rsync -avz --exclude -o StrictHostKeyChecking=no '__pycache__' . ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}:${{ secrets.WORK_DIR }}
+        rsync -avz --exclude '__pycache__' . ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}:${{ secrets.WORK_DIR }}
 
     - name: Install dependencies on server
       run: |
