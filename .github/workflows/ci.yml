@@ -32,8 +32,7 @@ jobs:
 
       - name: Test server connection
         run: |
-          echo ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }}
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no root@77.232.138.209 << 'EOF'
           echo lol
           EOF
 
