@@ -54,14 +54,6 @@ jobs:
             python manage.py migrate
           EOF
 
-      - name: Collect static files on server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
-            cd ${{ secrets.WORK_DIR }}
-            source venv/bin/activate
-            python manage.py collectstatic --noinput
-          EOF
-
       - name: Restart main application
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
