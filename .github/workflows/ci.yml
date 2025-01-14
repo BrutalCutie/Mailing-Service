@@ -13,22 +13,19 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-#
-#
-#      - name: Install flake8
-#        run: |
-#          python -m pip install --upgrade pip
-#          pip install flake8
-#
-#      - name: Run flake8
-#        run: flake8 .
+
+      - name: Install flake8
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Run flake8
+        run: flake8 .
 
   deploy:
     runs-on: ubuntu-latest
     needs: lint
     steps:
-#      - name: Add server to known_hosts
-#        run: ssh-keyscan -H ${{ secrets.SSH_IP_ADDRESS }} >> /root/.ssh/known_hosts
 
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -41,32 +38,32 @@ jobs:
           echo lol
           EOF
 
-#      - name: Install dependencies on server
-#        run: |
-#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
-#            cd ${{ secrets.WORK_DIR }}
-#            source venv/bin/activate
-#            pip install -r requirements.txt
-#          EOF
-#
-#      - name: Install migrations on server
-#        run: |
-#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
-#            cd ${{ secrets.WORK_DIR }}
-#            source venv/bin/activate
-#            python manage.py migrate
-#          EOF
-#
-#      - name: Collect static files on server
-#        run: |
-#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
-#            cd ${{ secrets.WORK_DIR }}
-#            source venv/bin/activate
-#            python manage.py collectstatic --noinput
-#          EOF
-#
-#      - name: Restart main application
-#        run: |
-#          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
-#            sudo systemctl restart ${{ secrets.MAIN_APPLICATION }}
-#          EOF
+      - name: Install dependencies on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
+            cd ${{ secrets.WORK_DIR }}
+            source venv/bin/activate
+            pip install -r requirements.txt
+          EOF
+
+      - name: Install migrations on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
+            cd ${{ secrets.WORK_DIR }}
+            source venv/bin/activate
+            python manage.py migrate
+          EOF
+
+      - name: Collect static files on server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
+            cd ${{ secrets.WORK_DIR }}
+            source venv/bin/activate
+            python manage.py collectstatic --noinput
+          EOF
+
+      - name: Restart main application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP_ADDRESS }} << 'EOF'
+            sudo systemctl restart ${{ secrets.MAIN_APPLICATION }}
+          EOF
